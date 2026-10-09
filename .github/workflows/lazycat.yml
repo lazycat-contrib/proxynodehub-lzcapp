@@ -1,6 +1,13 @@
 name: Publish LazyCat application
 
 on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "强制构建的应用版本（留空则自动检查上游镜像）"
+        type: string
+        required: false
+        default: ""
   pull_request:
     paths:
       - .github/lazycat-action.yml
@@ -12,8 +19,6 @@ on:
   schedule:
     # 北京时间 4:17（UTC 20:17）：检查上游 newest 镜像 digest，有更新则自动发版
     - cron: "17 20 * * *"
-  workflow_dispatch:
-
 permissions:
   contents: write
   pull-requests: write
@@ -26,6 +31,7 @@ jobs:
       config: .github/lazycat-action.yml
       dry-run: ${{ github.event_name == 'pull_request' }}
       versioned-release-asset: true
+      version: ${{ inputs.version }}
     secrets:
       APPSTORE_URL: ${{ secrets.APPSTORE_URL }}
       APPSTORE_TOKEN: ${{ secrets.APPSTORE_TOKEN }}
