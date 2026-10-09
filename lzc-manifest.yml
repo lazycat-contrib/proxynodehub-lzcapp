@@ -19,7 +19,7 @@ application:
 services:
   proxynodehub:
     # upstream: docker.io/helloworldz1024/proxynodehub:latest
-    image: docker.1ms.run/helloworldz1024/proxynodehub:latest
+    image: docker.1ms.run/helloworldz1024/proxynodehub:latest@sha256:257b5e59d1dfe78b5108da03c55c190c9383c9141fdd86aedbba7cfd6e55db22
     # 镜像内以 uid 1654 运行；以 root 启动保证 /lzcapp/var/data 挂载目录可写
     user: root
     environment:
