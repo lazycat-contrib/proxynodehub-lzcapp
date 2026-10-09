@@ -1,0 +1,33 @@
+name: Publish LazyCat application
+
+on:
+  pull_request:
+    paths:
+      - .github/lazycat-action.yml
+      - .github/workflows/lazycat.yml
+      - lzc-build.yml
+      - lzc-deploy-params.yml
+      - lzc-manifest.yml
+      - package.yml
+  schedule:
+    # 北京时间 4:17（UTC 20:17）：检查上游 newest 镜像 digest，有更新则自动发版
+    - cron: "17 20 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  lazycat:
+    uses: ca-x/lazycat-github-action/.github/workflows/lazycat.yml@v1
+    with:
+      operation: auto
+      config: .github/lazycat-action.yml
+      dry-run: ${{ github.event_name == 'pull_request' }}
+      versioned-release-asset: true
+    secrets:
+      APPSTORE_URL: ${{ secrets.APPSTORE_URL }}
+      APPSTORE_TOKEN: ${{ secrets.APPSTORE_TOKEN }}
+      APP_ID: ${{ secrets.APP_ID }}
+      PRIVATE_STORE_GROUP_CODES: ${{ secrets.PRIVATE_STORE_GROUP_CODES }}

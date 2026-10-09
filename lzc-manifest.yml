@@ -1,0 +1,39 @@
+application:
+  subdomain: proxynodehub
+  public_path:
+    - /
+  upstreams:
+    - location: /
+      backend: http://proxynodehub:8080/
+  injects:
+    # 登录页自动填充部署参数中的随机密码（免密登录体验）
+    - id: login-autofill
+      when:
+        - /
+      do:
+        - src: builtin://simple-inject-password
+          params:
+            password: "{{ .U.admin_password }}"
+            passwordSelector: "#password"
+            autoSubmit: false
+services:
+  proxynodehub:
+    # upstream: docker.io/helloworldz1024/proxynodehub:latest
+    image: docker.1ms.run/helloworldz1024/proxynodehub:latest
+    # 镜像内以 uid 1654 运行；以 root 启动保证 /lzcapp/var/data 挂载目录可写
+    user: root
+    environment:
+      - ADMIN_PASSWORD={{ .U.admin_password }}
+      - AUTO_REFRESH=true
+{{if .U.github_token}}
+      - GITHUB_TOKEN={{ .U.github_token }}
+{{end}}
+    binds:
+      - /lzcapp/var/data:/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "wget -q -O /dev/null http://127.0.0.1:8080/live || exit 1"
+      interval: 30s
+      start_period: 30s
+      retries: 3
